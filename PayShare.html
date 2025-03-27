@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>團體出遊分帳計算</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        input, button { margin: 5px 0; padding: 8px; width: 100%; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>團體出遊分帳計算</h2>
+        
+        <!-- 費用輸入區 -->
+        <label>費用名稱：</label>
+        <input type="text" id="expenseName" placeholder="例如：晚餐、住宿">
+        
+        <label>金額：</label>
+        <input type="number" id="expenseAmount" placeholder="輸入金額">
+        
+        <label>付款人：</label>
+        <input type="text" id="payer" placeholder="輸入付款人姓名">
+        
+        <label>分攤者：</label>
+        <input type="text" id="splitPayer" placeholder="分攤者姓名（例如：A,B,C）">
+        
+        <button onclick="addExpense()">新增費用</button>
+        
+        <!-- 費用列表 -->
+        <h3>費用明細</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>名稱</th>
+                    <th>金額</th>
+                    <th>付款人</th>
+                    <th>分攤者</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="expenseList"></tbody>
+        </table>
+        
+        <button onclick="calculateSplit()">計算分帳</button>
+        
+        <!-- 計算結果 -->
+        <h3>分帳結果</h3>
+        <table class="hidden" id="resultTable">
+            <thead>
+                <tr>
+                    <th>應付者</th>
+                    <th>應付金額</th>
+                </tr>
+            </thead>
+            <tbody id="resultList"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // 嘗試從 sessionStorage 中讀取資料
+        let expenses = JSON.parse(sessionStorage.getItem("expenses")) || [];
+        let participants = new Set(JSON.parse(sessionStorage.getItem("participants")) || []);
+        
+        // 新增費用並設定分攤者
+        function addExpense() {
+            const name = document.getElementById("expenseName").value;
+            const amount = parseFloat(document.getElementById("expenseAmount").value);
+            const payer = document.getElementById("payer").value;
+            const splitPayer = document.getElementById("splitPayer").value.split(",").map(item => item.trim());
+            
+            if (!name || isNaN(amount) || !payer || splitPayer.length === 0) {
+                alert("請填寫完整費用資訊並選擇分攤者");
+                return;
+            }
+            
+            expenses.push({ name, amount, payer, splitPayer });
+            participants.add(payer);  // 加入付款人
+            splitPayer.forEach(person => participants.add(person));  // 加入分攤者
+            
+            // 儲存到 sessionStorage
+            sessionStorage.setItem("expenses", JSON.stringify(expenses));
+            sessionStorage.setItem("participants", JSON.stringify(Array.from(participants)));
+            
+            renderExpenses();
+        }
+
+        // 顯示費用明細
+        function renderExpenses() {
+            const table = document.getElementById("expenseList");
+            table.innerHTML = "";
+            expenses.forEach((expense, index) => {
+                const row = table.insertRow();
+                const splitText = expense.splitPayer.join(", ");  // 顯示分攤者
+                row.innerHTML = `<td>${expense.name}</td><td>${expense.amount}</td><td>${expense.payer}</td><td>${splitText}</td><td><button onclick="removeExpense(${index})">刪除</button></td>`;
+            });
+        }
+
+        // 刪除費用項目
+        function removeExpense(index) {
+            expenses.splice(index, 1);
+            participants.clear(); // 清空 participants 集合
+            expenses.forEach(({ payer, splitPayer }) => {
+                participants.add(payer);  // 重新添加付款人
+                splitPayer.forEach(person => participants.add(person));  // 重新添加分攤者
+            });
+            
+            // 儲存更新到 sessionStorage
+            sessionStorage.setItem("expenses", JSON.stringify(expenses));
+            sessionStorage.setItem("participants", JSON.stringify(Array.from(participants)));
+            
+            renderExpenses();
+        }
+
+        // 計算分帳
+        function calculateSplit() {
+            if (expenses.length === 0) {
+                alert("請先新增費用");
+                return;
+            }
+            
+            let payments = {};
+			let needPays = {};
+            let balances = {};
+            let perPersonShare = 0;
+            // 計算總費用並收集付款人信息
+            expenses.forEach(({ amount, payer, splitPayer }) => {
+                payments[payer] = (payments[payer] || 0) + amount;//收集付款人付的總額
+                // 計算每個人在該項目應付的金額
+                perPersonShare = amount / splitPayer.length;
+				splitPayer.forEach(person => {
+					needPays[person] = (needPays[person] || 0) + perPersonShare;
+				});
+            });
+
+            // 計算每個人應收/應付的金額
+            participants.forEach(person=>{
+				balances[person] = (payments[person] || 0) - (needPays[person] || 0);
+			});
+            displayResults(balances);
+        }
+
+        // 顯示結果
+        function displayResults(balances) {
+            const resultTable = document.getElementById("resultTable");
+            const resultList = document.getElementById("resultList");
+            resultList.innerHTML = "";
+            
+            Object.entries(balances).forEach(([person, balance]) => {
+                if (balance < 0) {
+                    resultList.innerHTML += `<tr><td>${person}</td><td>應付 ${Math.abs(balance).toFixed(2)} 元</td></tr>`;
+                } else if (balance > 0) {
+                    resultList.innerHTML += `<tr><td>${person}</td><td>應收 ${balance.toFixed(2)} 元</td></tr>`;
+                }
+            });
+            
+            resultTable.classList.remove("hidden");
+        }
+
+        // 初始渲染
+        renderExpenses();
+    </script>
+</body>
+</html>
