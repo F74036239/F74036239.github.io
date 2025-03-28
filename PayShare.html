@@ -22,6 +22,9 @@
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
         .hidden { display: none; }
+		.spacer { margin-top: 20px; display: block; }
+		.getMoney { background-color: #E8FFF5;}
+		.payMoney { background-color: #FFD9EC;}
     </style>
 </head>
 <body>
@@ -36,7 +39,7 @@
 		</span>
         
         <h3>參與者名單</h3>
-        <div id="participantList"></div>
+        <div class="btn-group" id="participantList"></div>
 
         <!-- 費用輸入 -->
         <h3>輸入費用</h3>
@@ -50,25 +53,38 @@
 
         <label>分攤者：</label>
         <div class="btn-group" id="splitPayerList"></div>
-
+		
+        <span class="spacer"></span>
         <button onclick="addExpense()">新增費用</button>
+        <span class="spacer"></span>
 
-        <!-- 費用列表 -->
+        <!-- 二維費用報表 -->
         <h3>費用明細</h3>
-        <table>
+        <table id="expenseReport">
             <thead>
-                <tr>
-                    <th>名稱</th>
-                    <th>金額</th>
-                    <th>付款人</th>
-                    <th>分攤者</th>
-                    <th>操作</th>
-                </tr>
+                <tr id="expenseHeaderRow"></tr>
             </thead>
-            <tbody id="expenseList"></tbody>
+            <tbody id="expenseReportBody"></tbody>
         </table>
 
-        <button onclick="calculateSplit()">計算分帳</button>
+        <!-- 費用列表 -->
+        <!-- <h3>費用明細</h3> -->
+        <!-- <table> -->
+            <!-- <thead> -->
+                <!-- <tr> -->
+                    <!-- <th>名稱</th> -->
+                    <!-- <th>金額</th> -->
+                    <!-- <th>付款人</th> -->
+                    <!-- <th>分攤者</th> -->
+                    <!-- <th>操作</th> -->
+                <!-- </tr> -->
+            <!-- </thead> -->
+            <!-- <tbody id="expenseList"></tbody> -->
+        <!-- </table> -->
+
+        <span class="spacer"></span>
+        <button onclick="calculateSplit()">計算分帳</button><br>
+        <span class="spacer"></span>
 
         <!-- 計算結果 -->
         <h3>分帳結果</h3>
@@ -81,6 +97,8 @@
             </thead>
             <tbody id="resultList"></tbody>
         </table>
+		<h3>應付款明細</h3>
+        <ul id="transactionList"></ul>
     </div>
 
     <script>
@@ -92,6 +110,7 @@
 
         // 初始渲染
         renderExpenses();
+		renderParticipants();
 
         function addParticipant() {
             const name = document.getElementById("participantName").value.trim();
@@ -100,23 +119,34 @@
             participants.add(name);
             // 儲存到 sessionStorage
             sessionStorage.setItem("participants", JSON.stringify(Array.from(participants)));
-			renderParticipants();
+			renderParticipants();//增加參與者
+			renderExpenses();//補上空白格子
         }
 
         function renderParticipants() {
             const participantList = document.getElementById("participantList");
             const payerList = document.getElementById("payerList");
             const splitPayerList = document.getElementById("splitPayerList");
-            
+            const headerRow = document.getElementById("expenseHeaderRow"); //費用二維表
+			
             participantList.innerHTML = "";
             payerList.innerHTML = "";
             splitPayerList.innerHTML = "";
+			headerRow.innerHTML = "<th>操作</th><th>費用名稱-付款人(金額)</th>";
 
             participants.forEach(person => {
                 // 顯示參與者清單
-                let span = document.createElement("span");
-                span.textContent = person + " ";
-                participantList.appendChild(span);
+                const div = document.createElement("div");
+                div.textContent = person;
+        
+                // 建立刪除按鈕
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "x";
+                deleteButton.onclick = function() {
+                    removeParticipant(person);
+                };
+                div.appendChild(deleteButton);
+				participantList.appendChild(div);
 
                 // 付款人按鈕
                 let payerButton = document.createElement("button");
@@ -129,9 +159,18 @@
                 splitButton.textContent = person;
                 splitButton.onclick = () => toggleSplitPayer(person, splitButton);
                 splitPayerList.appendChild(splitButton);
+				
+				//二維表表頭
+				headerRow.innerHTML += `<th>${person}</th>`;
             });
         }
-
+        function removeParticipant(person) {
+            participants.delete(person); // 移除該參與者
+			// 儲存到 sessionStorage
+            sessionStorage.setItem("participants", JSON.stringify(Array.from(participants)));
+            renderParticipants(); // 重新渲染畫面
+			renderExpenses();//刪除空白格子
+        }
         function selectPayer(person, button) {
             selectedPayer = person;
             document.querySelectorAll("#payerList button").forEach(btn => btn.classList.remove("selected"));
@@ -163,11 +202,28 @@
         }
 
         function renderExpenses() {
-            const table = document.getElementById("expenseList");
-            table.innerHTML = "";
+		    //費用明細 改成顯示二維表就好
+//            const table = document.getElementById("expenseList");
+//            table.innerHTML = "";
+//            expenses.forEach((expense, index) => {
+//                const row = table.insertRow();
+//                row.innerHTML = `<td>${expense.name}</td><td>${expense.amount}</td><td>${expense.payer}</td><td>${expense.splitPayer.join(", ")}</td><td><button onclick="removeExpense(${index})">刪除</button></td>`;
+//            });
+			//費用二維表
+            const reportBody = document.getElementById("expenseReportBody");
+            
+            reportBody.innerHTML = "";
             expenses.forEach((expense, index) => {
-                const row = table.insertRow();
-                row.innerHTML = `<td>${expense.name}</td><td>${expense.amount}</td><td>${expense.payer}</td><td>${expense.splitPayer.join(", ")}</td><td><button onclick="removeExpense(${index})">刪除</button></td>`;
+                let rowHTML = `<tr><td><button onclick="removeExpense(${index})">刪除</button></td><td>${expense.name} - ${expense.payer}(${expense.amount})</td>`;
+                participants.forEach(person => {
+                    if (expense.splitPayer.includes(person)) {
+                        rowHTML += `<td>${(expense.amount / expense.splitPayer.length).toFixed(1)}</td>`;
+                    } else {
+                        rowHTML += `<td>-</td>`;
+                    }
+                });
+                rowHTML += "</tr>";
+                reportBody.innerHTML += rowHTML;
             });
         }
 
@@ -180,25 +236,58 @@
 
         function calculateSplit() {
             let balances = {};
+			let transactions = []; // 紀錄應付款明細
             expenses.forEach(({ amount, payer, splitPayer }) => {
                 let perPersonShare = amount / splitPayer.length;
                 balances[payer] = (balances[payer] || 0) + amount;
                 splitPayer.forEach(person => balances[person] = (balances[person] || 0) - perPersonShare);
             });
-            displayResults(balances);
+			// 計算誰應該付給誰
+            let debtors = [];
+            let creditors = [];
+
+            Object.entries(balances).forEach(([person, balance]) => {
+                if (balance < 0) {
+                    debtors.push({ person, amount: Math.abs(balance) }); // 負數代表要付款
+                } else if (balance > 0) {
+                    creditors.push({ person, amount: balance }); // 正數代表應收款
+                }
+            });
+
+            // 貪心演算法(Greedy Algorithm)
+            let i = 0, j = 0;
+            while (i < debtors.length && j < creditors.length) {
+                let debtor = debtors[i];   // 取得當前的欠款者
+                let creditor = creditors[j]; // 取得當前的應收款者
+
+                let payAmount = Math.min(debtor.amount, creditor.amount); // 付款金額為兩者的最小值
+                transactions.push(`${debtor.person} 應付 ${payAmount.toFixed(0)} ( ${payAmount.toFixed(1)} ) 元 給 ${creditor.person}`);
+
+                debtor.amount -= payAmount; // 欠款者減少相應的欠款
+                creditor.amount -= payAmount; // 收款者減少相應的應收
+
+                if (debtor.amount === 0) i++; // 如果欠款者的欠款還清，移動到下一個欠款者
+                if (creditor.amount === 0) j++; // 如果應收款者收到足夠的錢，移動到下一個應收款者
+            }
+            displayResults(balances, transactions);
         }
 
-        function displayResults(balances) {
+        function displayResults(balances, transactions) {
             const resultTable = document.getElementById("resultTable");
             const resultList = document.getElementById("resultList");
+			const transactionList = document.getElementById("transactionList");
             resultList.innerHTML = "";
+			transactionList.innerHTML = "";
             Object.entries(balances).forEach(([person, balance]) => {
 			    if (balance < 0) {
-                    resultList.innerHTML += `<tr><td>${person}</td><td>應付 ${Math.abs(balance).toFixed(2)} 元</td></tr>`;
+                    resultList.innerHTML += `<tr class="payMoney"><td>${person}</td><td>應付 ${Math.abs(balance).toFixed(0)} ( ${Math.abs(balance).toFixed(1)} ) 元</td></tr>`;
                 } else if (balance > 0) {
-                    resultList.innerHTML += `<tr><td>${person}</td><td>應收 ${balance.toFixed(2)} 元</td></tr>`;
+                    resultList.innerHTML += `<tr class="getMoney"><td>${person}</td><td>應收 ${balance.toFixed(0)} ( ${balance.toFixed(1)} ) 元</td></tr>`;
                 }
 			});
+			transactions.forEach(transaction => {
+                transactionList.innerHTML += `<li>${transaction}</li>`;
+            });
             resultTable.classList.remove("hidden");
         }
     </script>
