@@ -14,10 +14,30 @@
           flex: 1; /* 讓輸入框可以自適應寬度 */
           padding: 8px;
         }
+		input[type="number"] { width: 60px; }
         button {padding: 8px 16px;}
         body { font-family: Arial, sans-serif; margin: 20px; }
         .container { max-width: 600px; margin: auto; }
         .btn-group button { margin: 3px; padding: 5px 10px; cursor: pointer; }
+		.btn-group {
+          display: flex;
+          flex-wrap: wrap; /* 允許換行 */
+          gap: 10px; /* 控制按鈕間距 */
+        }
+        .btn-group div {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+	      border: 1px solid #ddd;
+          padding: 5px;
+          border-radius: 5px;
+        }
+		.label-group {
+		   display: flex;
+          align-items: center;
+          gap: 5px;
+		  padding: 5px;
+		}
         .selected { background-color: #4CAF50; color: white; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
@@ -43,10 +63,14 @@
 
         <!-- 費用輸入 -->
         <h3>輸入費用</h3>
-        <label>費用名稱：</label>
-        <input type="text" id="expenseName" placeholder="例如：晚餐、住宿">
-        <label>金額：</label>
-        <input type="number" id="expenseAmount" placeholder="輸入金額">
+        <div class="label-group">
+		  <label>費用名稱：</label>
+          <input type="text" id="expenseName" placeholder="例如：晚餐、住宿">
+		</div>
+		<div class="label-group">
+          <label>金額：</label>
+          <input type="number" id="expenseAmount" placeholder="輸入金額">
+		</div>
         <BR>
         <label>付款人：</label>
         <div class="btn-group" id="payerList"></div>
@@ -109,8 +133,8 @@
         let selectedSplitPayers = new Set();
 
         // 初始渲染
-        renderExpenses();
-		renderParticipants();
+        renderParticipants();
+		renderExpenses();
 
         function addParticipant() {
             const name = document.getElementById("participantName").value.trim();
@@ -132,7 +156,7 @@
             participantList.innerHTML = "";
             payerList.innerHTML = "";
             splitPayerList.innerHTML = "";
-			headerRow.innerHTML = "<th>操作</th><th>費用名稱-付款人(金額)</th>";
+			headerRow.innerHTML = "<th>費用名稱</th>";
 
             participants.forEach(person => {
                 // 顯示參與者清單
@@ -194,8 +218,13 @@
                 alert("請填寫完整費用資訊並選擇付款人與分攤者");
                 return;
             }
+            let splitPayer = Array.from(selectedSplitPayers);
+			let shareAmounts = {};
+            splitPayer.forEach(person => {
+                shareAmounts[person] = (amount / splitPayer.length).toFixed(1);//紀錄分攤金額
+            });
+			expenses.push({ name, amount, payer: selectedPayer, splitPayer, shareAmounts});
 
-            expenses.push({ name, amount, payer: selectedPayer, splitPayer: Array.from(selectedSplitPayers) });
             // 儲存到 sessionStorage
             sessionStorage.setItem("expenses", JSON.stringify(expenses));
 			renderExpenses();
@@ -214,17 +243,34 @@
             
             reportBody.innerHTML = "";
             expenses.forEach((expense, index) => {
-                let rowHTML = `<tr><td><button onclick="removeExpense(${index})">刪除</button></td><td>${expense.name} - ${expense.payer}(${expense.amount})</td>`;
-                participants.forEach(person => {
-                    if (expense.splitPayer.includes(person)) {
-                        rowHTML += `<td>${(expense.amount / expense.splitPayer.length).toFixed(1)}</td>`;
-                    } else {
-                        rowHTML += `<td>-</td>`;
-                    }
+                let rowHTML = `<tr><td><button onclick="removeExpense(${index})">刪</button>&nbsp;${expense.name} - ${expense.payer}(${expense.amount})</td>`;
+
+                participants.forEach(person => { //手動更改個人分攤金額
+                    let value = expense.shareAmounts[person];
+                    rowHTML += `<td><input type='number' value='${value}' onchange='updateShareAmount(${expenses.indexOf(expense)}, "${person}", this.value)'></td>`;
                 });
                 rowHTML += "</tr>";
                 reportBody.innerHTML += rowHTML;
             });
+			//清空分帳結果
+			document.getElementById("resultList").innerHTML = "";
+			document.getElementById("transactionList").innerHTML = "";
+        }
+
+        function updateShareAmount(expenseIndex, person, newAmount) {
+            expenses[expenseIndex].shareAmounts[person] = parseFloat(newAmount).toFixed(1);
+			let sumAmt = 0;
+			if (!expenses[expenseIndex].splitPayer.includes(person)) {  //如果本來不在分攤者裡面，就把他加進來
+                expenses[expenseIndex].splitPayer.push(person);
+			}
+			Object.entries(expenses[expenseIndex].shareAmounts).forEach(([person, amount]) => {
+                sumAmt += parseFloat(amount);
+            });
+			if(expenses[expenseIndex].amount !== sumAmt){
+				alert("分攤加總:"+sumAmt+",不等於原金額:"+expenses[expenseIndex].amount);
+			}
+			// 儲存更新到 sessionStorage
+            sessionStorage.setItem("expenses", JSON.stringify(expenses));
         }
 
         function removeExpense(index) {
@@ -237,10 +283,12 @@
         function calculateSplit() {
             let balances = {};
 			let transactions = []; // 紀錄應付款明細
-            expenses.forEach(({ amount, payer, splitPayer }) => {
-                let perPersonShare = amount / splitPayer.length;
+            expenses.forEach(({ amount, payer, splitPayer, shareAmounts }) => {
                 balances[payer] = (balances[payer] || 0) + amount;
-                splitPayer.forEach(person => balances[person] = (balances[person] || 0) - perPersonShare);
+                splitPayer.forEach(person => {
+				    let perPersonShare = parseFloat(shareAmounts[person]) || 0;  //改成畫面上個人的分攤金額
+				    balances[person] = (balances[person] || 0) - perPersonShare;
+				});
             });
 			// 計算誰應該付給誰
             let debtors = [];
