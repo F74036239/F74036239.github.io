@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收銀結帳系統</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        button:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+        .category-container {
+            margin-top: 20px;
+			display: flex;
+            flex-wrap: wrap;  /* 超過長度自動換行 */
+            gap: 10px;        /* 設定間距 */
+        }
+        .category {
+		    margin-bottom: 10px;
+			flex: 0 0 48%;  /* 固定寬度 48% */
+        }
+        .category-header {
+		    background-color: #C4E1E1;
+            padding: 10px;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+			border-radius: 5px;
+        }
+        .toggle-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .category-items {
+            display: none;
+            margin-left: 20px;
+			flex-wrap: wrap; /* 允許換行 */
+        }
+        .category-items button {
+            padding: 8px;
+            background-color: #94A7AE;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            border-radius: 5px;
+			margin: 5px;  /* 外邊距 5px */
+        }
+        .cart {
+            margin-bottom: 20px;
+			font-size: 20px;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .cart-item button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            background: linear-gradient(to bottom, #ff6b6b, #d63031);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            /*transition: all 0.3s ease-in-out;*/
+        }
+        .total {
+            font-weight: bold;
+            font-size: 25px;
+            margin-bottom: 20px;
+        }
+        .payment-section {
+            margin-top: 20px;
+        }
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .number-button {
+            padding: 20px;
+            background-color: #647295;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+			font-size: 25px;
+			font-weight: bold;
+        }
+        .clear-button {
+            background-color: #f44336;
+        }
+        .checkout-button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .result {
+            font-size: 25px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>餐飲收銀系統</h2>
+
+        <!-- 項目分類的折疊選單 -->
+        <div class="category-container">
+            <div class="category">
+                <div class="category-header" onclick="toggleCategory(this)">
+                    <span>漢堡</span>
+                    <button class="toggle-btn">+</button>
+                </div>
+                <div class="category-items" id="category1">
+                    <button onclick="addItemToCart('漢堡1',35)">漢堡1 35</button>
+                    <button onclick="addItemToCart('漢堡2',30)">漢堡2 30</button>
+                    <button onclick="addItemToCart('漢堡3',25)">漢堡3 25</button>
+                    <button onclick="addItemToCart('漢堡4',35)">漢堡4 35</button>
+                    <button onclick="addItemToCart('漢堡5',30)">漢堡5 30</button>
+                    <button onclick="addItemToCart('漢堡6',25)">漢堡6 25</button>
+                    <button onclick="addItemToCart('漢堡7',35)">漢堡7 35</button>
+                    <button onclick="addItemToCart('漢堡8',30)">漢堡8 30</button>
+                    <button onclick="addItemToCart('漢堡9',25)">漢堡9 25</button>
+                </div>
+            </div>
+			<div class="category">
+                <div class="category-header" onclick="toggleCategory(this)">
+                    <span>蛋餅</span>
+                    <button class="toggle-btn">+</button>
+                </div>
+                <div class="category-items" id="category1">
+                    <button onclick="addItemToCart('蛋餅1',35)">蛋餅1 35</button>
+                    <button onclick="addItemToCart('蛋餅2',30)">蛋餅2 30</button>
+                    <button onclick="addItemToCart('蛋餅3',25)">蛋餅3 25</button>
+                    <button onclick="addItemToCart('蛋餅4',35)">蛋餅4 35</button>
+                    <button onclick="addItemToCart('蛋餅5',30)">蛋餅5 30</button>
+                    <button onclick="addItemToCart('蛋餅6',25)">蛋餅6 25</button>
+                    <button onclick="addItemToCart('蛋餅7',35)">蛋餅7 35</button>
+                    <button onclick="addItemToCart('蛋餅8',30)">蛋餅8 30</button>
+                    <button onclick="addItemToCart('蛋餅9',25)">蛋餅9 25</button>
+                </div>
+            </div>
+            <div class="category">
+			    <div class="category-header" onclick="toggleCategory(this)">
+                    <span>饅頭</span>
+                    <button class="toggle-btn">+</button>
+                </div>
+                <div class="category-items" id="category2">
+                    <button onclick="addItemToCart('饅頭1',50)">饅頭1 50</button>
+                    <button onclick="addItemToCart('饅頭2',50)">饅頭2 50</button>
+                    <button onclick="addItemToCart('饅頭3',50)">饅頭3 50</button>
+                    <button onclick="addItemToCart('饅頭4',50)">饅頭4 50</button>
+                    <button onclick="addItemToCart('饅頭5',50)">饅頭5 50</button>
+                    <button onclick="addItemToCart('饅頭6',50)">饅頭6 50</button>
+                </div>
+            </div>
+			<div class="category">
+			    <div class="category-header" onclick="toggleCategory(this)">
+                    <span>中式</span>
+                    <button class="toggle-btn">+</button>
+                </div>
+                <div class="category-items" id="category2">
+                    <button onclick="addItemToCart('中式1',50)">中式1 50</button>
+                    <button onclick="addItemToCart('中式2',50)">中式2 50</button>
+                    <button onclick="addItemToCart('中式3',50)">中式3 50</button>
+                    <button onclick="addItemToCart('中式4',50)">中式4 50</button>
+                    <button onclick="addItemToCart('中式5',50)">中式5 50</button>
+                    <button onclick="addItemToCart('中式6',50)">中式6 50</button>
+                    <button onclick="addItemToCart('中式7',50)">中式7 50</button>
+                    <button onclick="addItemToCart('中式8',50)">中式8 50</button>
+                    <button onclick="addItemToCart('中式9',50)">中式9 50</button>
+                </div>
+            </div>
+			<div class="category">
+			    <div class="category-header" onclick="toggleCategory(this)">
+                    <span>西式</span>
+                    <button class="toggle-btn">+</button>
+                </div>
+                <div class="category-items" id="category2">
+                    <button onclick="addItemToCart('西式1',50)">西式1 50</button>
+                    <button onclick="addItemToCart('西式2',50)">西式2 50</button>
+                    <button onclick="addItemToCart('西式3',50)">西式3 50</button>
+                    <button onclick="addItemToCart('西式4',50)">西式4 50</button>
+                    <button onclick="addItemToCart('西式5',50)">西式5 50</button>
+                    <button onclick="addItemToCart('西式6',50)">西式6 50</button>
+                    <button onclick="addItemToCart('西式7',50)">西式7 50</button>
+                    <button onclick="addItemToCart('西式8',50)">西式8 50</button>
+                    <button onclick="addItemToCart('西式9',50)">西式9 50</button>
+                </div>
+            </div>
+            <div class="category">
+			    <div class="category-header" onclick="toggleCategory(this)">
+                    <span>飲料</span>
+                    <button class="toggle-btn">+</button>
+                </div>
+                <div class="category-items" id="category3">
+                    <button onclick="addItemToCart('飲料1',30)">飲料1 30</button>
+                    <button onclick="addItemToCart('飲料2',25)">飲料2 25</button>
+                    <button onclick="addItemToCart('飲料3',20)">飲料3 20</button>
+                    <button onclick="addItemToCart('飲料4',15)">飲料4 15</button>
+                    <button onclick="addItemToCart('飲料5',30)">飲料5 30</button>
+                    <button onclick="addItemToCart('飲料6',25)">飲料6 25</button>
+                    <button onclick="addItemToCart('飲料7',20)">飲料7 20</button>
+                    <button onclick="addItemToCart('飲料8',15)">飲料8 15</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cart">
+            <h3>已選項目</h3>
+            <div id="cartList"></div>
+            <div class="total">
+                總金額: <span id="totalAmount">0</span>元
+            </div>
+        </div>
+
+        <div class="payment-section">
+            <h3>付款金額</h3>
+            <div class="number-pad">
+                <!-- 數字按鈕 -->
+                <button class="number-button" onclick="addPaymentAmount(1)">1</button>
+                <button class="number-button" onclick="addPaymentAmount(5)">5</button>
+                <button class="number-button" onclick="addPaymentAmount(10)">10</button>
+                <button class="number-button" onclick="addPaymentAmount(50)">50</button>
+                <button class="number-button" onclick="addPaymentAmount(100)">100</button>
+                <button class="number-button" onclick="addPaymentAmount(500)">500</button>
+                <button class="number-button" onclick="addPaymentAmount(1000)">1000</button>
+                <button class="number-button clear-button" onclick="clearPayment()">清除</button>
+            </div>
+            <div class="result">
+                目前付款金額: <span id="paymentAmountDisplay">0</span>元
+            </div>
+            <div class="result">
+                應找零: <span id="changeAmount">0</span>元
+            </div>
+        </div>
+
+        <button class="checkout-button" onclick="checkout()">結帳</button>
+    </div>
+
+    <script>
+        let cart = [];
+        let totalAmount = 0;
+        let paymentAmount = 0;
+
+        function toggleCategory(header) {
+            let content = header.nextElementSibling;  // 找到對應的內容
+            let button = header.querySelector('.toggle-btn');
+        
+            if (content.style.display === "none" || content.style.display === "") {
+                content.style.display = "flex";  // 展開
+                button.textContent = "-";  // 變成減號
+            } else {
+                content.style.display = "none";  // 收起
+                button.textContent = "+";  // 變回加號
+            }
+        }
+        // 新增項目到購物車
+        function addItemToCart(item, price) {
+            cart.push({ item, price });
+            totalAmount += price;
+            updateCart();
+        }
+
+        // 更新購物車顯示
+        function updateCart() {
+            const cartList = document.getElementById("cartList");
+            cartList.innerHTML = ""; // 清空
+            cart.forEach((cartItem, index) => {
+                const div = document.createElement("div");
+                div.classList.add("cart-item");
+                div.innerHTML = `${cartItem.item} - ${cartItem.price}元`;
+				
+				const deleteButton = document.createElement('button');
+                deleteButton.textContent = '刪除';
+                deleteButton.onclick = () => removeItem(cartItem);
+
+                div.appendChild(deleteButton);
+                cartList.appendChild(div);
+            });
+
+            // 更新總金額
+            document.getElementById("totalAmount").textContent = totalAmount;
+        }
+
+        // 刪除已選項目
+        function removeItem(itemToRemove) {
+            cart = cart.filter(item => item !== itemToRemove);
+            totalAmount -= itemToRemove.price;
+            updateCart();
+			updatePaymentAmountDisplay();
+        }
+
+        // 點擊數字按鈕組合付款金額
+        function addPaymentAmount(number) {
+			paymentAmount = paymentAmount + number;
+            updatePaymentAmountDisplay();
+        }
+
+        // 清除當前付款金額
+        function clearPayment() {
+            paymentAmount = 0;
+            updatePaymentAmountDisplay();
+        }
+
+        // 更新付款金額顯示
+        function updatePaymentAmountDisplay() {
+            document.getElementById("paymentAmountDisplay").textContent = paymentAmount;
+            calculateChange();
+        }
+
+        // 計算找零
+        function calculateChange() {
+            const change = paymentAmount - totalAmount;
+            document.getElementById("changeAmount").innerHTML = change >= 0 ? change.toFixed(0) : "<font color='red'>不足"+Math.abs(change.toFixed(0))+"</font>";
+        }
+
+        // 結帳處理
+        function checkout() {
+            // 清空購物車和金額
+            cart = [];
+            totalAmount = 0;
+            paymentAmount = 0;
+            
+            // 更新界面顯示
+            updateCart();
+            updatePaymentAmountDisplay();
+			window.scrollTo({ top: 0, behavior: "smooth" });//回到頂端
+        }
+    </script>
+</body>
+</html>
