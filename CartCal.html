@@ -12,18 +12,25 @@
             background-color: #f9f9f9;
         }
         .container {
-            max-width: 800px;
             margin: auto;
-            padding: 20px;
+            padding: 15px;
             background-color: white;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        h2 {
+        h1 {
             text-align: center;
         }
         button:hover {
             transform: scale(1.05);
             filter: brightness(1.2);
+        }
+        button {
+            white-space: nowrap;   /* 防止文字換行 */
+            text-align: center;    /* 文字水平置中 */
+            vertical-align: middle; /* 文字垂直置中（有些情況需要） */
+            display: flex;         /* 讓內容可以完美置中 */
+            align-items: center;   /* 垂直置中 */
+            justify-content: center; /* 水平置中 */
         }
         .category-container {
             margin-top: 20px;
@@ -38,7 +45,7 @@
         .category-header {
 		    background-color: #C4E1E1;
             padding: 10px;
-            font-size: 18px;
+            font-size: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -48,7 +55,7 @@
         .toggle-btn {
             background: none;
             border: none;
-            font-size: 20px;
+            font-size: 30px;
             cursor: pointer;
             transition: transform 0.2s ease;
         }
@@ -61,14 +68,14 @@
             padding: 8px;
             background-color: #94A7AE;
             border: none;
-            font-size: 20px;
+            font-size: 25px;
             cursor: pointer;
             border-radius: 5px;
 			margin: 5px;  /* 外邊距 5px */
         }
         .cart {
             margin-bottom: 20px;
-			font-size: 20px;
+			font-size: 25px;
         }
         .cart-item {
             display: flex;
@@ -82,17 +89,18 @@
             border-radius: 5px;
             background: linear-gradient(to bottom, #ff6b6b, #d63031);
             color: white;
-            font-size: 20px;
+            font-size: 25px;
             cursor: pointer;
             /*transition: all 0.3s ease-in-out;*/
         }
         .total {
             font-weight: bold;
-            font-size: 25px;
+            font-size: 35px;
             margin-bottom: 20px;
         }
         .payment-section {
             margin-top: 20px;
+			font-size: 25px;
         }
         .number-pad {
             display: grid;
@@ -118,23 +126,24 @@
             color: white;
             padding: 10px 20px;
             border: none;
-            font-size: 18px;
+            font-size: 25px;
             cursor: pointer;
             border-radius: 5px;
             margin-top: 20px;
         }
         .result {
-            font-size: 25px;
+            font-size: 35px;
             font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>餐飲收銀系統</h2>
-
+        <h1>餐飲收銀系統</h1>
+        <!-- TEST -->
+		<!--<input type="file" id="fileInput"> -->
         <!-- 項目分類的折疊選單 -->
-        <div class="category-container">
+        <div class="category-container" id="menu">
             <div class="category">
                 <div class="category-header" onclick="toggleCategory(this)">
                     <span>漢堡</span>
@@ -268,94 +277,158 @@
     </div>
 
     <script>
-        let cart = [];
-        let totalAmount = 0;
-        let paymentAmount = 0;
+//上傳檔案用
+//document.getElementById("fileInput").addEventListener("change", function(event) {
+//    const file = event.target.files[0];
+//    if (!file) return;
+//
+//    const reader = new FileReader();
+//    reader.onload = function(e) {
+//        const content = e.target.result;
+//        try {
+//            const menuData = JSON.parse(content); // 解析 JSON
+//            renderMenu(menuData);
+//        } catch (error) {
+//            console.error("JSON 解析錯誤:", error);
+//        }
+//    };
+//
+//    reader.readAsText(file);
+//});
+fetch("https://f74036239.github.io/menu.json")
+  .then(response => response.json())
+  .then(data => {
+      console.log(data);
+      renderMenu(data)})
+  .catch(error => console.error("無法載入菜單:", error));
 
-        function toggleCategory(header) {
-            let content = header.nextElementSibling;  // 找到對應的內容
-            let button = header.querySelector('.toggle-btn');
-        
-            if (content.style.display === "none" || content.style.display === "") {
-                content.style.display = "flex";  // 展開
-                button.textContent = "-";  // 變成減號
-            } else {
-                content.style.display = "none";  // 收起
-                button.textContent = "+";  // 變回加號
-            }
-        }
-        // 新增項目到購物車
-        function addItemToCart(item, price) {
-            cart.push({ item, price });
-            totalAmount += price;
-            updateCart();
-        }
 
-        // 更新購物車顯示
-        function updateCart() {
-            const cartList = document.getElementById("cartList");
-            cartList.innerHTML = ""; // 清空
-            cart.forEach((cartItem, index) => {
-                const div = document.createElement("div");
-                div.classList.add("cart-item");
-                div.innerHTML = `${cartItem.item} - ${cartItem.price}元`;
-				
-				const deleteButton = document.createElement('button');
-                deleteButton.textContent = '刪除';
-                deleteButton.onclick = () => removeItem(cartItem);
-
-                div.appendChild(deleteButton);
-                cartList.appendChild(div);
-            });
-
-            // 更新總金額
-            document.getElementById("totalAmount").textContent = totalAmount;
-        }
-
-        // 刪除已選項目
-        function removeItem(itemToRemove) {
-            cart = cart.filter(item => item !== itemToRemove);
-            totalAmount -= itemToRemove.price;
-            updateCart();
-			updatePaymentAmountDisplay();
-        }
-
-        // 點擊數字按鈕組合付款金額
-        function addPaymentAmount(number) {
-			paymentAmount = paymentAmount + number;
-            updatePaymentAmountDisplay();
-        }
-
-        // 清除當前付款金額
-        function clearPayment() {
-            paymentAmount = 0;
-            updatePaymentAmountDisplay();
-        }
-
-        // 更新付款金額顯示
-        function updatePaymentAmountDisplay() {
-            document.getElementById("paymentAmountDisplay").textContent = paymentAmount;
-            calculateChange();
-        }
-
-        // 計算找零
-        function calculateChange() {
-            const change = paymentAmount - totalAmount;
-            document.getElementById("changeAmount").innerHTML = change >= 0 ? change.toFixed(0) : "<font color='red'>不足"+Math.abs(change.toFixed(0))+"</font>";
-        }
-
-        // 結帳處理
-        function checkout() {
-            // 清空購物車和金額
-            cart = [];
-            totalAmount = 0;
-            paymentAmount = 0;
+    function renderMenu(data) {
+        let menu = document.getElementById("menu");
+        menu.innerHTML = ""; // 清空舊資料
+    
+        data.forEach(category => {
+            let categoryDiv = document.createElement("div");
+            let headerDiv = document.createElement("div");
+    		let headerDesc = document.createElement("span");
+    		let headerBtn = document.createElement("button");
+    		
+            categoryDiv.classList.add("category");
+    		
+            headerDiv.classList.add("category-header");
+            headerDiv.addEventListener("click", () => toggleCategory(headerDiv));
+    		
+    		headerDesc.textContent = category.header;
+            headerBtn.classList.add("toggle-btn");
+    		headerBtn.textContent = "+";
             
-            // 更新界面顯示
-            updateCart();
-            updatePaymentAmountDisplay();
-			window.scrollTo({ top: 0, behavior: "smooth" });//回到頂端
+    		headerDiv.appendChild(headerDesc);
+            headerDiv.appendChild(headerBtn);
+    		
+            categoryDiv.appendChild(headerDiv);
+    
+            let categoryItems = document.createElement("div");
+    		categoryItems.classList.add("category-items");
+            category.items.forEach(item => {
+                let itemBtn = document.createElement("button");
+                itemBtn.textContent = `${item.name} - ${item.price}`;
+    			itemBtn.addEventListener("click", () => addItemToCart(item.name,item.price));
+                categoryItems.appendChild(itemBtn);
+            });
+            categoryDiv.appendChild(categoryItems);
+            menu.appendChild(categoryDiv);
+        });
+    }
+
+    let cart = [];
+    let totalAmount = 0;
+    let paymentAmount = 0;
+
+    function toggleCategory(header) {
+        let content = header.nextElementSibling;  // 找到對應的內容
+        let button = header.querySelector('.toggle-btn');
+    
+        if (content.style.display === "none" || content.style.display === "") {
+            content.style.display = "flex";  // 展開
+            button.textContent = "-";  // 變成減號
+        } else {
+            content.style.display = "none";  // 收起
+            button.textContent = "+";  // 變回加號
         }
+    }
+    // 新增項目到購物車
+    function addItemToCart(item, price) {
+        cart.push({ item, price });
+        totalAmount += price;
+        updateCart();
+		updatePaymentAmountDisplay();
+    }
+
+    // 更新購物車顯示
+    function updateCart() {
+        const cartList = document.getElementById("cartList");
+        cartList.innerHTML = ""; // 清空
+        cart.forEach((cartItem, index) => {
+            const div = document.createElement("div");
+            div.classList.add("cart-item");
+            div.innerHTML = `${cartItem.item} - ${cartItem.price}元`;
+			
+			const deleteButton = document.createElement('button');
+            deleteButton.textContent = '刪除';
+            deleteButton.onclick = () => removeItem(cartItem);
+
+            div.appendChild(deleteButton);
+            cartList.appendChild(div);
+        });
+
+        // 更新總金額
+        document.getElementById("totalAmount").textContent = totalAmount;
+    }
+
+    // 刪除已選項目
+    function removeItem(itemToRemove) {
+        cart = cart.filter(item => item !== itemToRemove);
+        totalAmount -= itemToRemove.price;
+        updateCart();
+		updatePaymentAmountDisplay();
+    }
+
+    // 點擊數字按鈕組合付款金額
+    function addPaymentAmount(number) {
+		paymentAmount = paymentAmount + number;
+        updatePaymentAmountDisplay();
+    }
+
+    // 清除當前付款金額
+    function clearPayment() {
+        paymentAmount = 0;
+        updatePaymentAmountDisplay();
+    }
+
+    // 更新付款金額顯示
+    function updatePaymentAmountDisplay() {
+        document.getElementById("paymentAmountDisplay").textContent = paymentAmount;
+        calculateChange();
+    }
+
+    // 計算找零
+    function calculateChange() {
+        const change = paymentAmount - totalAmount;
+        document.getElementById("changeAmount").innerHTML = change >= 0 ? change.toFixed(0) : "<font color='red'>不足"+Math.abs(change.toFixed(0))+"</font>";
+    }
+
+    // 結帳處理
+    function checkout() {
+        // 清空購物車和金額
+        cart = [];
+        totalAmount = 0;
+        paymentAmount = 0;
+        
+        // 更新界面顯示
+        updateCart();
+        updatePaymentAmountDisplay();
+		window.scrollTo({ top: 0, behavior: "smooth" });//回到頂端
+    }
     </script>
 </body>
 </html>
