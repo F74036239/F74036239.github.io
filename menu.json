@@ -1,0 +1,31 @@
+[
+  {
+    "header": "飲料",
+    "items": [
+      { "name": "珍珠奶茶", "price": 50 },
+      { "name": "綠茶", "price": 30 },
+      { "name": "紅茶", "price": 25 }
+    ]
+  },
+  {
+    "header": "甜點",
+    "items": [
+      { "name": "起司蛋糕", "price": 80 },
+      { "name": "布朗尼", "price": 90 }
+    ]
+  },
+  {
+    "header": "主餐",
+    "items": [
+      { "name": "牛肉飯", "price": 120 },
+      { "name": "炸雞套餐", "price": 150 }
+    ]
+  },
+  {
+    "header": "小菜",
+    "items": [
+      { "name": "炸豆腐", "price": 40 },
+      { "name": "涼拌黃瓜", "price": 35 }
+    ]
+  }
+]
