@@ -1,31 +1,111 @@
 [
   {
-    "header": "飲料",
+    "header": "蛋餅",
     "items": [
-      { "name": "珍珠奶茶", "price": 50 },
-      { "name": "綠茶", "price": 30 },
-      { "name": "紅茶", "price": 25 }
+      { "name": "原味蛋餅", "price": 20 },
+      { "name": "玉米蛋餅", "price": 30 },
+      { "name": "火腿蛋餅", "price": 30 },
+      { "name": "培根蛋餅", "price": 35 },
+      { "name": "起司蛋餅", "price": 35 },
+      { "name": "豬排蛋餅", "price": 40 }
     ]
   },
   {
-    "header": "甜點",
+    "header": "漢堡",
     "items": [
-      { "name": "起司蛋糕", "price": 80 },
-      { "name": "布朗尼", "price": 90 }
+      { "name": "漢堡加蛋", "price": 30 },
+      { "name": "原味漢堡", "price": 35 },
+      { "name": "火腿漢堡", "price": 35 },
+      { "name": "培根漢堡", "price": 35 },
+      { "name": "豬排漢堡", "price": 35 },
+      { "name": "雞腿漢堡", "price": 35 }
     ]
   },
   {
-    "header": "主餐",
+    "header": "中式",
     "items": [
-      { "name": "牛肉飯", "price": 120 },
-      { "name": "炸雞套餐", "price": 150 }
+      { "name": "水煮蛋", "price": 12 },
+      { "name": "蔥抓餅", "price": 30 },
+      { "name": "蔥抓餅加蛋", "price": 35 },
+      { "name": "鍋貼", "price": 35 },
+      { "name": "湯包", "price": 35 }
     ]
   },
   {
-    "header": "小菜",
+    "header": "西式",
     "items": [
-      { "name": "炸豆腐", "price": 40 },
-      { "name": "涼拌黃瓜", "price": 35 }
+      { "name": "熱狗", "price": 30 },
+      { "name": "雞塊", "price": 35 },
+      { "name": "雞腿", "price": 35 },
+      { "name": "小肉豆", "price": 35 }
+    ]
+  },
+  {
+    "header": "鹹吐司",
+    "items": [
+      { "name": "鹹三明治", "price": 30 },
+      { "name": "吐司夾蛋", "price": 30 },
+      { "name": "火腿吐司", "price": 40 },
+      { "name": "培根吐司", "price": 40 },
+      { "name": "起司吐司", "price": 40 },
+      { "name": "豬排吐司", "price": 40 },
+      { "name": "雞腿三明治", "price": 40 }
+    ]
+  },
+  {
+    "header": "甜吐司",
+    "items": [
+      { "name": "甜三明治", "price": 20 },
+      { "name": "草莓吐司", "price": 30 },
+      { "name": "奶酥吐司", "price": 30 },
+      { "name": "花生吐司", "price": 30 },
+      { "name": "巧克力吐司", "price": 30 },
+      { "name": "草莓厚片", "price": 30 },
+      { "name": "奶酥厚片", "price": 30 },
+      { "name": "花生厚片", "price": 30 },
+      { "name": "巧克力厚片", "price": 30 }
+    ]
+  },
+  {
+    "header": "鬆餅",
+    "items": [
+      { "name": "鬆餅", "price": 20 },
+      { "name": "草莓鬆餅", "price": 30 },
+      { "name": "奶酥鬆餅", "price": 30 },
+      { "name": "花生鬆餅", "price": 30 },
+      { "name": "巧克力鬆餅", "price": 30 }
+    ]
+  },
+  {
+    "header": "饅頭",
+    "items": [
+      { "name": "饅頭", "price": 20 },
+      { "name": "肉包", "price": 18 },
+      { "name": "菜包", "price": 18 },
+      { "name": "芋泥芝麻奶皇", "price": 18 },
+      { "name": "紅豆銀絲", "price": 18 },
+      { "name": "肉粽", "price": 35 }
+    ]
+  },
+  {
+    "header": "大杯飲料",
+    "items": [
+      { "name": "豆漿大杯", "price": 20 },
+      { "name": "米漿大杯", "price": 20 },
+      { "name": "紅茶大杯", "price": 15 },
+      { "name": "奶茶大杯", "price": 20 },
+      { "name": "咖啡大杯", "price": 20 },
+      { "name": "牛奶", "price": 23 }
+    ]
+  },
+  {
+    "header": "小杯飲料",
+    "items": [
+      { "name": "豆漿小杯", "price": 15 },
+      { "name": "米漿小杯", "price": 15 },
+      { "name": "紅茶小杯", "price": 10 },
+      { "name": "奶茶小杯", "price": 15 },
+      { "name": "咖啡小杯", "price": 15 },
     ]
   }
 ]
