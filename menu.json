@@ -88,24 +88,39 @@
     ]
   },
   {
-    "header": "大杯飲料",
+    "header": "飲料",
     "items": [
-      { "name": "豆漿大杯", "price": 20 },
-      { "name": "米漿大杯", "price": 20 },
-      { "name": "紅茶大杯", "price": 15 },
-      { "name": "奶茶大杯", "price": 20 },
-      { "name": "咖啡大杯", "price": 20 },
+      { "name": "豆漿", 
+	    "sizes": [
+            { "size": "小", "price": 15 },
+            { "size": "大", "price": 20 }
+        ] 
+      },
+      { "name": "米漿", 
+	    "sizes": [
+            { "size": "小", "price": 15 },
+            { "size": "大", "price": 20 }
+        ]
+      },
+      { "name": "紅茶", 
+	    "sizes": [
+            { "size": "小", "price": 15 },
+            { "size": "大", "price": 20 }
+        ]
+      },
+      { "name": "奶茶", 
+	    "sizes": [
+            { "size": "小", "price": 20 },
+            { "size": "大", "price": 25 }
+        ]
+      },
+      { "name": "咖啡", 
+	    "sizes": [
+            { "size": "小", "price": 20 },
+            { "size": "大", "price": 25 }
+        ]
+      },
       { "name": "牛奶", "price": 23 }
-    ]
-  },
-  {
-    "header": "小杯飲料",
-    "items": [
-      { "name": "豆漿小杯", "price": 15 },
-      { "name": "米漿小杯", "price": 15 },
-      { "name": "紅茶小杯", "price": 10 },
-      { "name": "奶茶小杯", "price": 15 },
-      { "name": "咖啡小杯", "price": 15 },
     ]
   }
 ]
